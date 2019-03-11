@@ -2,6 +2,19 @@
 
 #include "evpp/platform_config.h"
 
+// Turn off internal evpp logging for STC usage
+#ifdef EVPP_FOR_STC
+#include "evpp/null_stream.h"
+#define LOG_TRACE evpp::NullStream::get()
+#define LOG_DEBUG evpp::NullStream::get()
+#define LOG_INFO  evpp::NullStream::get()
+#define LOG_WARN  evpp::NullStream::get()
+#define LOG_ERROR evpp::NullStream::get()
+#define LOG_FATAL evpp::NullStream::get()
+#define DLOG_TRACE LOG_INFO << __PRETTY_FUNCTION__ << " this=" << this << " "
+#define CHECK_NOTnullptr(val) LOG_ERROR << "'" #val "' Must be non nullptr";
+
+#else
 #ifdef __cplusplus
 #define GOOGLE_GLOG_DLL_DECL           // 使用静态glog库时，必须定义这个
 #define GLOG_NO_ABBREVIATED_SEVERITIES // 没这个编译会出错,传说因为和Windows.h冲突
@@ -43,6 +56,7 @@
 #define CHECK_NOTnullptr(val) LOG_ERROR << "'" #val "' Must be non nullptr";
 #endif
 #endif // end of define __cplusplus
+#endif // end of define EVPP_FOR_STC
 
 //#ifdef _DEBUG
 //#ifdef assert
