@@ -13,6 +13,11 @@ set (MACOSX_RPATH ${LIBRARY_OUTPUT_PATH})
 
 include_directories(${PROJECT_SOURCE_DIR})
 
+find_package(Boost 1.64.0 REQUIRED)
+if (Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+endif(Boost_FOUND)
+
 add_library(evpp_static STATIC ${evpp_SRCS})
 target_link_libraries(evpp_static ${DEPENDENT_LIBRARIES})
 
