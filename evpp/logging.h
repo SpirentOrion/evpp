@@ -12,6 +12,7 @@
 #define LOG_ERROR evpp::NullStream::get()
 #define LOG_FATAL evpp::NullStream::get()
 #define DLOG_TRACE LOG_INFO << __PRETTY_FUNCTION__ << " this=" << this << " "
+#define DLOG_WARN  LOG_INFO << __PRETTY_FUNCTION__ << " this=" << this << " "
 #define CHECK_NOTnullptr(val) LOG_ERROR << "'" #val "' Must be non nullptr";
 
 #else
