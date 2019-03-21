@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.8)
 
 project (safe-evpp C CXX)
 
+option(EVPP__BUILD_32_BIT "Build evpp and dependent apps as 32-bit libs" OFF)
+
 if (UNIX)
     if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE "Release")
@@ -28,6 +30,11 @@ if (UNIX)
     )
     include_directories (${PROJECT_SOURCE_DIR}
                          ${PROJECT_SOURCE_DIR}/3rdparty)
+
+    if (EVPP__BUILD_32_BIT)
+        list(APPEND CXX_FLAGS -m32)
+    endif(EVPP__BUILD_32_BIT)
+
 else (UNIX)
 set (CXX_FLAGS -DWIN32 -D_WIN32 -EHsc)
     set(VcpkgRoot ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
