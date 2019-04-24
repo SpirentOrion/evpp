@@ -20,7 +20,7 @@ int GetVbucketConf::GetVbucketConfContext(const std::string& conf_addr, std::str
         }
         ifs.close();
     } else {
-        LOG_WARN << "read local vbucket conf:" << conf_addr << " failed";
+        EVPP_LOG_WARN << "read local vbucket conf:" << conf_addr << " failed";
         return READ_VBUCKET_CONF_FAILED;
     }
     return 0;
@@ -34,7 +34,7 @@ void GetVbucketConf::OnHttpReqDone(struct evhttp_request* req, void* arg) {
         argument->retcode = 0;
     } else {
         argument->retcode = res_code;
-        LOG_WARN << "http request to get remote vbucket conf ret=" << res_code;
+        EVPP_LOG_WARN << "http request to get remote vbucket conf ret=" << res_code;
         return;
     }
     evbuffer_remove(req->input_buffer, &buf, sizeof(buf) - 1);

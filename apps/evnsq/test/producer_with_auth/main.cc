@@ -10,7 +10,7 @@
 size_t total_count = 200;
 
 bool Publish(evnsq::Producer* producer) {
-    LOG_INFO << "Publish(evnsq::Producer* producer) published_count=" << producer->published_count();
+    EVPP_LOG_INFO << "Publish(evnsq::Producer* producer) published_count=" << producer->published_count();
     if (producer->published_count() == total_count) {
         producer->Close();
         auto loop = producer->loop();

@@ -34,13 +34,13 @@ namespace evmc {
         bool ok = loop_pool_.Start(true);
 
         if (UNLIKELY(!ok)) {
-            LOG_ERROR << "loop pool start failed";
+            EVPP_LOG_ERROR << "loop pool start failed";
             return false;
         }
 
         if (!MemcacheClientBase::Start(true)) {
             loop_pool_.Stop(true);
-            LOG_ERROR << "vbucket init failed";
+            EVPP_LOG_ERROR << "vbucket init failed";
             return false;
         }
         auto server_list = vbucket_config()->server_list();
@@ -207,7 +207,7 @@ namespace evmc {
             uint16_t vbucket = command->vbucket_id();
             server_id = vbconf->SelectServerId(vbucket, command->server_id());
             if (UNLIKELY(server_id == BAD_SERVER_ID)) {
-                LOG_ERROR << "bad server id";
+                EVPP_LOG_ERROR << "bad server id";
                 command->OnError(ERR_CODE_DISCONNECT);
                 return;
             }
@@ -218,7 +218,7 @@ namespace evmc {
 
         if (UNLIKELY(client_map == nullptr)) {
             command->OnError(ERR_CODE_DISCONNECT);
-            LOG_INFO << "DoLaunchCommand thread pool empty";
+            EVPP_LOG_INFO << "DoLaunchCommand thread pool empty";
             return;
         }
 
@@ -241,7 +241,7 @@ namespace evmc {
             it->second->PushWaitingCommand(command);
         } else {
             if (command->ShouldRetry()) {
-                LOG_INFO << "OnClientConnection disconnect retry";
+                EVPP_LOG_INFO << "OnClientConnection disconnect retry";
                 command->set_id(0);
                 command->set_server_id(command->server_id());
                 LaunchCommand(command);

@@ -81,7 +81,7 @@ void MemcacheClient::OnConnectTimeout(uint32_t cmd_id) {
         return;
     }
 
-    LOG_DEBUG << "InvokeTimer triggered for " << cmd_id << " " << conn()->remote_addr();
+    EVPP_LOG_DEBUG << "InvokeTimer triggered for " << cmd_id << " " << conn()->remote_addr();
 
     while (!waiting_command_.empty()) {
         CommandPtr cmd(waiting_command_.front());
@@ -111,7 +111,7 @@ void MemcacheClient::OnPacketTimeout(uint32_t cmd_id) {
         return;
     }
 
-    LOG_DEBUG << "InvokeTimer triggered for " << cmd_id << " " << conn()->remote_addr();
+    EVPP_LOG_DEBUG << "InvokeTimer triggered for " << cmd_id << " " << conn()->remote_addr();
 
     while (!running_command_.empty()) {
         CommandPtr cmd(running_command_.front());
@@ -129,7 +129,7 @@ void MemcacheClient::OnPacketTimeout(uint32_t cmd_id) {
             break;
         }
     }
-    LOG_ERROR << "OnPacketTimeout post, waiting=" << waiting_command_.size()
+    EVPP_LOG_ERROR << "OnPacketTimeout post, waiting=" << waiting_command_.size()
               << " running=" << running_command_.size();
 }
 

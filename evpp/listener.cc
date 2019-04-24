@@ -9,22 +9,22 @@
 namespace evpp {
 Listener::Listener(EventLoop* l, const std::string& addr)
     : loop_(l), addr_(addr) {
-    DLOG_TRACE << "addr=" << addr;
+    EVPP_DLOG_TRACE << "addr=" << addr;
 }
 
 Listener::~Listener() {
-    DLOG_TRACE << "fd=" << chan_->fd();
+    EVPP_DLOG_TRACE << "fd=" << chan_->fd();
     chan_.reset();
     EVUTIL_CLOSESOCKET(fd_);
     fd_ = INVALID_SOCKET;
 }
 
 void Listener::Listen(int backlog) {
-    DLOG_TRACE;
+    EVPP_DLOG_TRACE;
     fd_ = sock::CreateNonblockingSocket();
     if (fd_ < 0) {
         int serrno = errno;
-        LOG_FATAL << "Create a nonblocking socket failed " << strerror(serrno);
+        EVPP_LOG_FATAL << "Create a nonblocking socket failed " << strerror(serrno);
         return;
     }
 
@@ -33,26 +33,26 @@ void Listener::Listen(int backlog) {
     int ret = ::bind(fd_, sock::sockaddr_cast(&addr), static_cast<socklen_t>(sizeof(struct sockaddr)));
     if (ret < 0) {
         int serrno = errno;
-        LOG_FATAL << "bind error :" << strerror(serrno) << " . addr=" << addr_;
+        EVPP_LOG_FATAL << "bind error :" << strerror(serrno) << " . addr=" << addr_;
     }
 
     ret = ::listen(fd_, backlog);
     if (ret < 0) {
         int serrno = errno;
-        LOG_FATAL << "Listen failed " << strerror(serrno);
+        EVPP_LOG_FATAL << "Listen failed " << strerror(serrno);
     }
 }
 
 void Listener::Accept() {
-    DLOG_TRACE;
+    EVPP_DLOG_TRACE;
     chan_.reset(new FdChannel(loop_, fd_, true, false));
     chan_->SetReadCallback(std::bind(&Listener::HandleAccept, this));
     loop_->RunInLoop(std::bind(&FdChannel::AttachToLoop, chan_.get()));
-    LOG_INFO << "TCPServer is running at " << addr_;
+    EVPP_LOG_INFO << "TCPServer is running at " << addr_;
 }
 
 void Listener::HandleAccept() {
-    DLOG_TRACE << "A new connection is comming in";
+    EVPP_DLOG_TRACE << "A new connection is comming in";
     assert(loop_->IsInLoopThread());
     struct sockaddr_storage ss;
     socklen_t addrlen = sizeof(ss);
@@ -60,13 +60,13 @@ void Listener::HandleAccept() {
     if ((nfd = ::accept(fd_, sock::sockaddr_cast(&ss), &addrlen)) == -1) {
         int serrno = errno;
         if (serrno != EAGAIN && serrno != EINTR) {
-            LOG_WARN << __FUNCTION__ << " bad accept " << strerror(serrno);
+            EVPP_LOG_WARN << __FUNCTION__ << " bad accept " << strerror(serrno);
         }
         return;
     }
 
     if (evutil_make_socket_nonblocking(nfd) < 0) {
-        LOG_ERROR << "set fd=" << nfd << " nonblocking failed.";
+        EVPP_LOG_ERROR << "set fd=" << nfd << " nonblocking failed.";
         EVUTIL_CLOSESOCKET(nfd);
         return;
     }
@@ -75,12 +75,12 @@ void Listener::HandleAccept() {
 
     std::string raddr = sock::ToIPPort(&ss);
     if (raddr.empty()) {
-        LOG_ERROR << "sock::ToIPPort(&ss) failed.";
+        EVPP_LOG_ERROR << "sock::ToIPPort(&ss) failed.";
         EVUTIL_CLOSESOCKET(nfd);
         return;
     }
 
-    DLOG_TRACE << "accepted a connection from " << raddr
+    EVPP_DLOG_TRACE << "accepted a connection from " << raddr
         << ", listen fd=" << fd_
         << ", client fd=" << nfd;
 

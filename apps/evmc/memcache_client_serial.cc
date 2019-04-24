@@ -44,7 +44,7 @@ void MemcacheClientSerial::MultiGet(const std::vector<std::string>& keys, MultiG
 
 bool MemcacheClientSerial::Start(evpp::EventLoop* loop) {
     if (!loop) {
-        LOG_ERROR << "start with nullptr event loop";
+        EVPP_LOG_ERROR << "start with nullptr event loop";
         return false;
     }
     MemcacheClientBase::Start(false);
@@ -71,7 +71,7 @@ void MemcacheClientSerial::LaunchCommand(CommandPtr& command) {
         memclient_->PushWaitingCommand(command);
     } else {
         //assert(loop_->IsInLoopThread());
-        LOG_ERROR << "connected to server, but some problems occurs!";
+        EVPP_LOG_ERROR << "connected to server, but some problems occurs!";
         command->OnError(ERR_CODE_NETWORK);
     }
 }

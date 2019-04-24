@@ -20,7 +20,7 @@ void OnConnection(const evpp::TCPConnPtr& conn) {
 
 void OnMessage(const evpp::TCPConnPtr& conn,
                evpp::Buffer* buf) {
-    LOG_INFO << " buf->size=" << buf->size();
+    EVPP_LOG_INFO << " buf->size=" << buf->size();
     const size_t kHeaderLen = sizeof(Header);
     while (buf->size() > kHeaderLen) {
         Header* header = reinterpret_cast<Header*>(const_cast<char*>(buf->data()));
@@ -30,7 +30,7 @@ void OnMessage(const evpp::TCPConnPtr& conn,
             return;
         }
 
-        LOG_INFO << "full_size=" << full_size << " header.body_size_=" << ntohl(header->body_size_) << " header.packet_count_=" << ntohl(header->packet_count_);
+        EVPP_LOG_INFO << "full_size=" << full_size << " header.body_size_=" << ntohl(header->body_size_) << " header.packet_count_=" << ntohl(header->packet_count_);
 
         if (check_count(header)) {
             conn->Close();

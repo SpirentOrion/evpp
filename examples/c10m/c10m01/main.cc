@@ -19,7 +19,7 @@ std::atomic<int64_t> g_current_round_recved_message = {0};
 std::atomic<int64_t> g_current_round_recved_bytes = {0};
 
 void Print() {
-    LOG_ERROR << "Running ...\n"
+    EVPP_LOG_ERROR << "Running ...\n"
         << "\t                Total connected " << g_connected << "\n"
         << "\t        Current round connected " << g_current_round_connected.exchange(0) << "\n"
         << "\t     Current round disconnected " << g_current_round_disconnected.exchange(0) << "\n"
@@ -51,18 +51,18 @@ void OnMessage(const evpp::TCPConnPtr& conn,
             }
         }
         if (!check) {
-            LOG_ERROR << "Received an ERROR message.";
+            EVPP_LOG_ERROR << "Received an ERROR message.";
         }
     }
 }
 
 void OnConnection(const evpp::TCPConnPtr& conn) {
     if (conn->IsConnected()) {
-        LOG_INFO << "Accept a new connection " << conn->AddrToString();
+        EVPP_LOG_INFO << "Accept a new connection " << conn->AddrToString();
         g_connected++;
         g_current_round_connected++;
     } else {
-        LOG_INFO << "Disconnected from " << conn->remote_addr();
+        EVPP_LOG_INFO << "Disconnected from " << conn->remote_addr();
         g_connected--;
         g_current_round_disconnected++;
     }

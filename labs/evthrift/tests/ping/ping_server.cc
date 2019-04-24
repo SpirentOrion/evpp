@@ -13,7 +13,7 @@ public:
     PingHandler() {}
 
     void ping() {
-        LOG_INFO << "ping";
+        EVPP_LOG_INFO << "ping";
     }
 
 };

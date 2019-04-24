@@ -71,13 +71,13 @@ void ThriftConn::Process() {
 
         conn_->Send(buf, size);
     } catch (const TTransportException& ex) {
-        LOG_ERROR << "ThriftServer TTransportException: " << ex.what();
+        EVPP_LOG_ERROR << "ThriftServer TTransportException: " << ex.what();
         Close();
     } catch (const std::exception& ex) {
-        LOG_ERROR << "ThriftServer std::exception: " << ex.what();
+        EVPP_LOG_ERROR << "ThriftServer std::exception: " << ex.what();
         Close();
     } catch (...) {
-        LOG_ERROR << "ThriftServer unknown exception";
+        EVPP_LOG_ERROR << "ThriftServer unknown exception";
         Close();
     }
 }

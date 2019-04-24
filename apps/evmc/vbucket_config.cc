@@ -73,7 +73,7 @@ uint16_t VbucketConfig::SelectServerId(uint16_t vbucket, uint16_t last_id) const
 
         if (total_weight > 0) {
             server_id = weighted_items.upper_bound(rand_->Next() % total_weight)->second;
-            LOG_DEBUG << "SelectServerId selected_server_id=" << server_id << " last_id=" << last_id;
+            EVPP_LOG_DEBUG << "SelectServerId selected_server_id=" << server_id << " last_id=" << last_id;
         } else {
             return BAD_SERVER_ID;
         }
@@ -119,7 +119,7 @@ bool VbucketConfig::Load(const char* json_info) {
     algorithm_ = d["hashAlgorithm"].GetString();
 
     rapidjson::Value& servers = d["serverList"];
-    LOG_DEBUG << "server count = " << servers.Size();
+    EVPP_LOG_DEBUG << "server count = " << servers.Size();
 
     for (rapidjson::SizeType i = 0; i < servers.Size(); i++) {
         server_list_.emplace_back(servers[i].GetString());

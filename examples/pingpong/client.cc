@@ -44,7 +44,7 @@ private:
     void OnConnection(const evpp::TCPConnPtr& conn);
 
     void OnMessage(const evpp::TCPConnPtr& conn, evpp::Buffer* buf) {
-        LOG_TRACE << "bytes_read=" << bytes_read_ << " bytes_writen=" << bytes_written_;
+        EVPP_LOG_TRACE << "bytes_read=" << bytes_read_ << " bytes_writen=" << bytes_written_;
         ++messages_read_;
         bytes_read_ += buf->size();
         bytes_written_ += buf->size();
@@ -97,13 +97,13 @@ public:
 
     void OnConnect() {
         if (++connected_count_ == session_count_) {
-            LOG_WARN << "all connected";
+            EVPP_LOG_WARN << "all connected";
         }
     }
 
     void OnDisconnect(const evpp::TCPConnPtr& conn) {
         if (--connected_count_ == 0) {
-            LOG_WARN << "all disconnected";
+            EVPP_LOG_WARN << "all disconnected";
 
             int64_t totalBytesRead = 0;
             int64_t totalMessagesRead = 0;
@@ -111,11 +111,11 @@ public:
                 totalBytesRead += it->bytes_read();
                 totalMessagesRead += it->messages_read();
             }
-            LOG_WARN << totalBytesRead << " total bytes read";
-            LOG_WARN << totalMessagesRead << " total messages read";
-            LOG_WARN << static_cast<double>(totalBytesRead) / static_cast<double>(totalMessagesRead)
+            EVPP_LOG_WARN << totalBytesRead << " total bytes read";
+            EVPP_LOG_WARN << totalMessagesRead << " total messages read";
+            EVPP_LOG_WARN << static_cast<double>(totalBytesRead) / static_cast<double>(totalMessagesRead)
                 << " average message size";
-            LOG_WARN << static_cast<double>(totalBytesRead) / (timeout_ * 1024 * 1024)
+            EVPP_LOG_WARN << static_cast<double>(totalBytesRead) / (timeout_ * 1024 * 1024)
                 << " MiB/s throughput";
             loop_->QueueInLoop(std::bind(&Client::Quit, this));
         }
@@ -136,7 +136,7 @@ private:
     }
 
     void HandleTimeout() {
-        LOG_WARN << "stop";
+        EVPP_LOG_WARN << "stop";
         for (auto &it : sessions_) {
             it->Stop();
         }

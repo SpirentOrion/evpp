@@ -14,37 +14,37 @@ using namespace evmc;
 static struct timeval g_tv_begin;
 static struct timeval g_tv_end;
 static void OnTestSetDone(const std::string& key, int code) {
-    LOG_INFO << "+++++++++++++ OnTestSetDone code=" << code << " " << key;
+    EVPP_LOG_INFO << "+++++++++++++ OnTestSetDone code=" << code << " " << key;
 }
 static void OnTestGetDone(const std::string& key, const GetResult& res) {
-    LOG_INFO << "============= OnTestGetDone " << key << " code=" << res.code << " " << res.value;
+    EVPP_LOG_INFO << "============= OnTestGetDone " << key << " code=" << res.code << " " << res.value;
 }
 
 static void OnTestPrefixDone(const std::string& prefix_key, const PrefixGetResultPtr res) {
-    LOG_INFO << "************** OnTestPrefixGetDone prefix=" << prefix_key << " code=" << res->code;
+    EVPP_LOG_INFO << "************** OnTestPrefixGetDone prefix=" << prefix_key << " code=" << res->code;
     std::map<std::string, std::string>::const_iterator it = res->result_map_.begin();
 
     for (; it != res->result_map_.end(); ++it) {
-        LOG_INFO << "<<<<<<<<<<<<<< OnTestPrefixGetDone " << it->first << " " << it->second;
+        EVPP_LOG_INFO << "<<<<<<<<<<<<<< OnTestPrefixGetDone " << it->first << " " << it->second;
     }
 }
 
 static void OnTestRemoveDone(const std::string& key, int code) {
-    LOG_INFO << "------------- OnTestRemoveDone code=" << code << " " << key;
+    EVPP_LOG_INFO << "------------- OnTestRemoveDone code=" << code << " " << key;
 }
 static void OnTestMultiGetDone(const MultiGetResult& res) {
     std::map<std::string, GetResult>::const_iterator it = res.begin();
 
-    LOG_INFO << ">>>>>>>>>>>>> OnTestMultiGetDone";
+    EVPP_LOG_INFO << ">>>>>>>>>>>>> OnTestMultiGetDone";
     for (; it != res.end(); ++it) {
-        LOG_INFO << "<<<<<<<<<< OnTestMultiGetDone " << it->first << " " << it->second.code << " " << it->second.value;
+        EVPP_LOG_INFO << "<<<<<<<<<< OnTestMultiGetDone " << it->first << " " << it->second.code << " " << it->second.value;
     }
 }
 
 static void OnTestPrefixMultiGetDone(const PrefixMultiGetResult& res) {
     gettimeofday(&g_tv_end, nullptr);
-    LOG_INFO << "cost:" << (g_tv_end.tv_sec - g_tv_begin.tv_sec) * 1e6 + (g_tv_end.tv_usec - g_tv_end.tv_usec);
-    LOG_INFO << ">>>>>>>>>>>>> OnTestPrefixMultiGetDone";
+    EVPP_LOG_INFO << "cost:" << (g_tv_end.tv_sec - g_tv_begin.tv_sec) * 1e6 + (g_tv_end.tv_usec - g_tv_end.tv_usec);
+    EVPP_LOG_INFO << ">>>>>>>>>>>>> OnTestPrefixMultiGetDone";
     auto it = res.begin();
     for (; it != res.end(); ++it) {
         OnTestPrefixDone(it->first, it->second);
@@ -53,12 +53,12 @@ static void OnTestPrefixMultiGetDone(const PrefixMultiGetResult& res) {
 
 static evpp::EventLoop* g_loop;
 static void StopLoop() {
-    LOG_INFO << "EventLoop is stopping ...";
+    EVPP_LOG_INFO << "EventLoop is stopping ...";
     g_loop->Stop();
 }
 
 static void MyEventThread() {
-    LOG_INFO << "EventLoop is running ...";
+    EVPP_LOG_INFO << "EventLoop is running ...";
     g_loop->Run();
 }
 
@@ -76,13 +76,13 @@ void VbucketConfTest() {
     VbucketConfig* conf = new VbucketConfig();
 
     if (!conf->Load("./test_kill_storage_cluster.json")) {
-        LOG_ERROR << "VbucketConfTest load error";
+        EVPP_LOG_ERROR << "VbucketConfTest load error";
         return;
     }
 
     for (size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); ++i) {
         uint16_t vbucket = conf->GetVbucketByKey(keys[i], strlen(keys[i]));
-        LOG_INFO << "VbucketConfTest key=" << keys[i] << " vbucket=" << vbucket;
+        EVPP_LOG_INFO << "VbucketConfTest key=" << keys[i] << " vbucket=" << vbucket;
     }
 }
 
@@ -156,7 +156,7 @@ int main() {
         gettimeofday(&g_tv_begin, nullptr);
         //mcp.PrefixMultiGet(g_loop, mget_keys, &OnTestPrefixMultiGetDone);
     }
-    LOG_INFO << "count value:" << count;
+    EVPP_LOG_INFO << "count value:" << count;
 // mcp.PrefixMultiGet(g_loop, mget_keys, &OnTestPrefixMultiGetDone);
     //mcp.MultiGet(g_loop, mget_keys, &OnTestMultiGetDone);
 

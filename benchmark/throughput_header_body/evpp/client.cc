@@ -57,7 +57,7 @@ private:
     void OnConnection(const evpp::TCPConnPtr& conn);
 
     void OnMessage(const evpp::TCPConnPtr& conn, evpp::Buffer* buf) {
-        LOG_INFO << " buf->size=" << buf->size();
+        EVPP_LOG_INFO << " buf->size=" << buf->size();
         const size_t kHeaderLen = sizeof(Header);
         while (buf->size() > kHeaderLen) {
             Header* header = reinterpret_cast<Header*>(const_cast<char*>(buf->data()));
@@ -67,12 +67,12 @@ private:
                 return;
             }
 
-            LOG_INFO << "full_size=" << full_size << " header.body_size_=" << ntohl(header->body_size_) << " header.packet_count_=" << ntohl(header->packet_count_);
+            EVPP_LOG_INFO << "full_size=" << full_size << " header.body_size_=" << ntohl(header->body_size_) << " header.packet_count_=" << ntohl(header->packet_count_);
 
             if (check_count(header)) {
                 stop_time_ = evpp::Timestamp::Now();
                 finished_ = true;
-                LOG_INFO << "stopping session " << client_.name();
+                EVPP_LOG_INFO << "stopping session " << client_.name();
                 client_.loop()->RunInLoop(std::bind(&Session::Stop, shared_from_this()));
                 break;
             } else {
@@ -129,13 +129,13 @@ public:
 
     void OnConnect() {
         if (++connected_count_ == session_count_) {
-            LOG_WARN << "all connected";
+            EVPP_LOG_WARN << "all connected";
         }
     }
 
     void OnDisconnect(const evpp::TCPConnPtr& conn) {
         if (--connected_count_ == 0) {
-            LOG_WARN << "all disconnected";
+            EVPP_LOG_WARN << "all disconnected";
 
             uint32_t finished_count = 0;
             uint32_t error_count = 0;
@@ -149,8 +149,8 @@ public:
                 }
             }
 
-            LOG_WARN << "name=" << name_ << " error count " << error_count;
-            LOG_WARN << "name=" << name_ << " average time(s) " << total_time.Seconds()/finished_count;
+            EVPP_LOG_WARN << "name=" << name_ << " error count " << error_count;
+            EVPP_LOG_WARN << "name=" << name_ << " average time(s) " << total_time.Seconds()/finished_count;
             loop_->QueueInLoop(std::bind(&Client::Quit, this));
         }
     }
@@ -167,7 +167,7 @@ private:
     }
 
     void HandleTimeout() {
-        LOG_WARN << "stop";
+        EVPP_LOG_WARN << "stop";
         for (auto &it : sessions_) {
             it->Stop();
         }

@@ -52,7 +52,7 @@ evpp_socket_t CreateNonblockingSocket() {
     evpp_socket_t fd = ::socket(AF_INET, SOCK_STREAM, 0);
     if (fd == -1) {
         serrno = errno;
-        LOG_ERROR << "socket error " << strerror(serrno);
+        EVPP_LOG_ERROR << "socket error " << strerror(serrno);
         return INVALID_SOCKET;
     }
 
@@ -63,7 +63,7 @@ evpp_socket_t CreateNonblockingSocket() {
 #ifndef H_OS_WINDOWS
     if (fcntl(fd, F_SETFD, 1) == -1) {
         serrno = errno;
-        LOG_FATAL << "fcntl(F_SETFD)" << strerror(serrno);
+        EVPP_LOG_FATAL << "fcntl(F_SETFD)" << strerror(serrno);
         goto out;
     }
 #endif
@@ -81,7 +81,7 @@ evpp_socket_t CreateUDPServer(int port) {
     evpp_socket_t fd = ::socket(AF_INET, SOCK_DGRAM, 0);
     if (fd == -1) {
         int serrno = errno;
-        LOG_ERROR << "socket error " << strerror(serrno);
+        EVPP_LOG_ERROR << "socket error " << strerror(serrno);
         return INVALID_SOCKET;
     }
     SetReuseAddr(fd);
@@ -91,7 +91,7 @@ evpp_socket_t CreateUDPServer(int port) {
     struct sockaddr_storage local = ParseFromIPPort(addr.c_str());
     if (::bind(fd, (struct sockaddr*)&local, sizeof(struct sockaddr))) {
         int serrno = errno;
-        LOG_ERROR << "socket bind error=" << serrno << " " << strerror(serrno);
+        EVPP_LOG_ERROR << "socket bind error=" << serrno << " " << strerror(serrno);
         return INVALID_SOCKET;
     }
 
@@ -115,14 +115,14 @@ bool ParseFromIPPort(const char* address, struct sockaddr_storage& ss) {
     struct sockaddr_in* addr = sockaddr_in_cast(&ss);
     int rc = ::evutil_inet_pton(family, host.data(), &addr->sin_addr);
     if (rc == 0) {
-        LOG_INFO << "ParseFromIPPort evutil_inet_pton (AF_INET '" << host.data() << "', ...) rc=0. " << host.data() << " is not a valid IP address. Maybe it is a hostname.";
+        EVPP_LOG_INFO << "ParseFromIPPort evutil_inet_pton (AF_INET '" << host.data() << "', ...) rc=0. " << host.data() << " is not a valid IP address. Maybe it is a hostname.";
         return false;
     } else if (rc < 0) {
         int serrno = errno;
         if (serrno == 0) {
-            LOG_INFO << "[" << host.data() << "] is not a IP address. Maybe it is a hostname.";
+            EVPP_LOG_INFO << "[" << host.data() << "] is not a IP address. Maybe it is a hostname.";
         } else {
-            LOG_WARN << "ParseFromIPPort evutil_inet_pton (AF_INET, '" << host.data() << "', ...) failed : " << strerror(serrno);
+            EVPP_LOG_WARN << "ParseFromIPPort evutil_inet_pton (AF_INET, '" << host.data() << "', ...) failed : " << strerror(serrno);
         }
         return false;
     }
@@ -141,7 +141,7 @@ bool SplitHostPort(const char* address, std::string& host, int& port) {
 
     size_t index = a.rfind(':');
     if (index == std::string::npos) {
-        LOG_ERROR << "Address specified error <" << address << ">. Cannot find ':'";
+        EVPP_LOG_ERROR << "Address specified error <" << address << ">. Cannot find ':'";
         return false;
     }
 
@@ -154,7 +154,7 @@ bool SplitHostPort(const char* address, std::string& host, int& port) {
     host = std::string(address, index);
     if (host[0] == '[') {
         if (*host.rbegin() != ']') {
-            LOG_ERROR << "Address specified error <" << address << ">. '[' ']' is not pair.";
+            EVPP_LOG_ERROR << "Address specified error <" << address << ">. '[' ']' is not pair.";
             return false;
         }
 
@@ -176,7 +176,7 @@ struct sockaddr_storage GetLocalAddr(evpp_socket_t sockfd) {
     memset(&laddr, 0, sizeof laddr);
     socklen_t addrlen = static_cast<socklen_t>(sizeof laddr);
     if (::getsockname(sockfd, sockaddr_cast(&laddr), &addrlen) < 0) {
-        LOG_ERROR << "GetLocalAddr:" << strerror(errno);
+        EVPP_LOG_ERROR << "GetLocalAddr:" << strerror(errno);
         memset(&laddr, 0, sizeof laddr);
     }
 
@@ -208,7 +208,7 @@ std::string ToIPPort(const struct sockaddr_storage* ss) {
 
         port = ntohs(addr6->sin6_port);
     } else {
-        LOG_ERROR << "unknown socket family connected";
+        EVPP_LOG_ERROR << "unknown socket family connected";
         return empty_string;
     }
 
@@ -244,7 +244,7 @@ std::string ToIP(const struct sockaddr* s) {
             return std::string(addr);
         }
     } else {
-        LOG_ERROR << "unknown socket family connected";
+        EVPP_LOG_ERROR << "unknown socket family connected";
     }
 
     return empty_string;
@@ -262,7 +262,7 @@ void SetTimeout(evpp_socket_t fd, uint32_t timeout_ms) {
     assert(ret == 0);
     if (ret != 0) {
         int err = errno;
-        LOG_ERROR << "setsockopt SO_RCVTIMEO ERROR " << err << strerror(err);
+        EVPP_LOG_ERROR << "setsockopt SO_RCVTIMEO ERROR " << err << strerror(err);
     }
 }
 
@@ -276,7 +276,7 @@ void SetKeepAlive(evpp_socket_t fd, bool on) {
                           reinterpret_cast<const char*>(&optval), static_cast<socklen_t>(sizeof optval));
     if (rc != 0) {
         int serrno = errno;
-        LOG_ERROR << "setsockopt(SO_KEEPALIVE) failed, errno=" << serrno << " " << strerror(serrno);
+        EVPP_LOG_ERROR << "setsockopt(SO_KEEPALIVE) failed, errno=" << serrno << " " << strerror(serrno);
     }
 }
 
@@ -286,7 +286,7 @@ void SetReuseAddr(evpp_socket_t fd) {
                           reinterpret_cast<const char*>(&optval), static_cast<socklen_t>(sizeof optval));
     if (rc != 0) {
         int serrno = errno;
-        LOG_ERROR << "setsockopt(SO_REUSEADDR) failed, errno=" << serrno << " " << strerror(serrno);
+        EVPP_LOG_ERROR << "setsockopt(SO_REUSEADDR) failed, errno=" << serrno << " " << strerror(serrno);
     }
 }
 
@@ -295,10 +295,10 @@ void SetReusePort(evpp_socket_t fd) {
     int optval = 1;
     int rc = ::setsockopt(fd, SOL_SOCKET, SO_REUSEPORT,
                           reinterpret_cast<const char*>(&optval), static_cast<socklen_t>(sizeof optval));
-    LOG_INFO << "setsockopt SO_REUSEPORT fd=" << fd << " rc=" << rc;
+    EVPP_LOG_INFO << "setsockopt SO_REUSEPORT fd=" << fd << " rc=" << rc;
     if (rc != 0) {
         int serrno = errno;
-        LOG_ERROR << "setsockopt(SO_REUSEPORT) failed, errno=" << serrno << " " << strerror(serrno);
+        EVPP_LOG_ERROR << "setsockopt(SO_REUSEPORT) failed, errno=" << serrno << " " << strerror(serrno);
     }
 #endif
 }
@@ -310,7 +310,7 @@ void SetTCPNoDelay(evpp_socket_t fd, bool on) {
                           reinterpret_cast<const char*>(&optval), static_cast<socklen_t>(sizeof optval));
     if (rc != 0) {
         int serrno = errno;
-        LOG_ERROR << "setsockopt(TCP_NODELAY) failed, errno=" << serrno << " " << strerror(serrno);
+        EVPP_LOG_ERROR << "setsockopt(TCP_NODELAY) failed, errno=" << serrno << " " << strerror(serrno);
     }
 }
 

@@ -26,7 +26,7 @@ This library is currently used in production which processes more than 130 billi
 
 
 int OnMessage(const evnsq::Message* msg) {
-    LOG_INFO << "Received a message, id=" << msg->id << " message=[" << msg->body.ToString() << "]";
+    EVPP_LOG_INFO << "Received a message, id=" << msg->id << " message=[" << msg->body.ToString() << "]";
     return 0;
 }
 
@@ -81,7 +81,7 @@ void Publish(evnsq::Producer* producer) {
     std::string msg = ss.str();
     msg.append(1000, 'x');
     producer->Publish(topic1, msg);
-    //LOG_INFO << "Publish : [" << msg << "]";
+    //EVPP_LOG_INFO << "Publish : [" << msg << "]";
     std::vector<std::string> messages;
     messages.push_back(msg);
     messages.push_back(msg);

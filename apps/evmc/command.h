@@ -71,7 +71,7 @@ public:
     }
 
     virtual void OnError(int err_code) {
-        LOG_INFO << "SetCommand OnError id=" << id();
+        EVPP_LOG_INFO << "SetCommand OnError id=" << id();
         auto loop = caller_loop();
         if (loop && !loop->IsInLoopThread()) {
             loop->RunInLoop(std::bind(set_callback_,

@@ -51,7 +51,7 @@ bool Client::Connect() {
     int ret = ::connect(sockfd_, addr, addrlen);
 
     if (ret != 0) {
-        LOG_ERROR << "Failed to connect to remote "
+        EVPP_LOG_ERROR << "Failed to connect to remote "
                   << sock::ToIPPort(&remote_addr_)
                   << ", errno=" << errno << " " << strerror(errno);
         Close();
@@ -70,7 +70,7 @@ void Client::Close() {
 std::string Client::DoRequest(const std::string& data, uint32_t timeout_ms) {
     if (!Send(data)) {
         int eno = errno;
-        LOG_ERROR << "sent failed, errno=" << eno << " " << strerror(eno) << " , dlen=" << data.size();
+        EVPP_LOG_ERROR << "sent failed, errno=" << eno << " " << strerror(eno) << " , dlen=" << data.size();
         return "";
     }
 
@@ -85,7 +85,7 @@ std::string Client::DoRequest(const std::string& data, uint32_t timeout_ms) {
         msg->WriteBytes(readn);
         return std::string(msg->data(), msg->size());
     } else {
-        LOG_ERROR << "errno=" << err << " " << strerror(err) << " recvfrom return -1";
+        EVPP_LOG_ERROR << "errno=" << err << " " << strerror(err) << " recvfrom return -1";
     }
 
     return "";

@@ -28,7 +28,7 @@ void ThriftServer::OnConnection(const evpp::TCPConnPtr& conn) {
 void ThriftServer::OnMessage(const evpp::TCPConnPtr& conn, evpp::Buffer* buffer) {
     const evpp::Any& a = conn->context();
     if (a.IsEmpty()) {
-        LOG_ERROR << "The evpp::TCPConn is not assoiated with a Thrift Connection";
+        EVPP_LOG_ERROR << "The evpp::TCPConn is not assoiated with a Thrift Connection";
         return;
     }
 

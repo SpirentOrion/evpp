@@ -19,7 +19,7 @@ void BinaryCodec::OnCodecMessage(const evpp::TCPConnPtr& conn,
         if (buf->size() >= resp.response.bodylen + kHeaderLen) {
             OnResponsePacket(resp, buf);
         } else {
-            LOG_TRACE << "need recv more data";
+            EVPP_LOG_TRACE << "need recv more data";
             break;
         }
     }
@@ -84,7 +84,7 @@ void BinaryCodec::OnResponsePacket(const protocol_binary_response_header& resp,
     if (!cmd || id != cmd->id()) {
         // TODO : id 不一致时候，如何处理?
         buf->Retrieve(kHeaderLen + resp.response.bodylen);
-        LOG_WARN << "OnResponsePacket cmd/message mismatch." << id;
+        EVPP_LOG_WARN << "OnResponsePacket cmd/message mismatch." << id;
         return;
     }
 
@@ -92,13 +92,13 @@ void BinaryCodec::OnResponsePacket(const protocol_binary_response_header& resp,
     case PROTOCOL_BINARY_CMD_SET:
         cmd = memc_client_->PopRunningCommand();
         cmd->OnSetCommandDone(resp.response.status);
-        LOG_DEBUG << "OnResponsePacket SET, opaque=" << id;
+        EVPP_LOG_DEBUG << "OnResponsePacket SET, opaque=" << id;
         break;
 
     case PROTOCOL_BINARY_CMD_DELETE:
         cmd = memc_client_->PopRunningCommand();
         cmd->OnRemoveCommandDone(resp.response.status);
-        LOG_DEBUG << "OnResponsePacket DELETE, opaque=" << id;
+        EVPP_LOG_DEBUG << "OnResponsePacket DELETE, opaque=" << id;
         break;
 
     case PROTOCOL_BINARY_CMD_GET: {
@@ -106,7 +106,7 @@ void BinaryCodec::OnResponsePacket(const protocol_binary_response_header& resp,
         const char* pv = buf->data() + sizeof(resp) + resp.response.extlen;
         std::string value(pv, resp.response.bodylen - resp.response.extlen);
         cmd->OnGetCommandDone(resp.response.status, value);
-        LOG_DEBUG << "OnResponsePacket GET, opaque=" << id;
+        EVPP_LOG_DEBUG << "OnResponsePacket GET, opaque=" << id;
     }
     break;
 
@@ -119,7 +119,7 @@ void BinaryCodec::OnResponsePacket(const protocol_binary_response_header& resp,
         std::string value(pv + keylen_getk, resp.response.bodylen - keylen_getk - extlen_getk);
 
         cmd->OnMultiGetCommandDone(resp.response.status, key, value);
-        LOG_DEBUG << "OnResponsePacket MULTIGETK, opaque=" << id;
+        EVPP_LOG_DEBUG << "OnResponsePacket MULTIGETK, opaque=" << id;
     }
     break;
 
@@ -131,7 +131,7 @@ void BinaryCodec::OnResponsePacket(const protocol_binary_response_header& resp,
         std::string value(pv + keylen, resp.response.bodylen - keylen - extlen);
 
         cmd->OnMultiGetCommandOneResponse(resp.response.status, key, value);
-        LOG_DEBUG << "OnResponsePacket MULTIGETQ, opaque=" << id;
+        EVPP_LOG_DEBUG << "OnResponsePacket MULTIGETQ, opaque=" << id;
     }
     break;
 
@@ -141,7 +141,7 @@ void BinaryCodec::OnResponsePacket(const protocol_binary_response_header& resp,
         std::string key(pv, resp.response.keylen);
         DecodePrefixGetPacket(resp, buf, key, cmd);
         cmd->OnPrefixGetCommandDone();
-        LOG_DEBUG << "OnResponsePacket PGETK, opaque=" << id;
+        EVPP_LOG_DEBUG << "OnResponsePacket PGETK, opaque=" << id;
     }
     break;
 
@@ -149,12 +149,12 @@ void BinaryCodec::OnResponsePacket(const protocol_binary_response_header& resp,
         const char* pv = buf->data() + sizeof(resp) + resp.response.extlen;
         std::string key(pv, resp.response.keylen);
         DecodePrefixGetPacket(resp, buf, key, cmd);
-        LOG_DEBUG << "OnResponsePacket PGETKQ opaque=" << id;
+        EVPP_LOG_DEBUG << "OnResponsePacket PGETKQ opaque=" << id;
     }
     break;
 
     case PROTOCOL_BINARY_CMD_NOOP:
-        LOG_DEBUG << "GETQ, NOOP opaque=" << id;
+        EVPP_LOG_DEBUG << "GETQ, NOOP opaque=" << id;
         //memc_client_->onMultiGetCommandDone(id, resp.response.status);
         break;
     default:

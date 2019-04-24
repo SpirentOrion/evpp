@@ -10,13 +10,13 @@ public:
     EchoHandler() {}
 
     void echo(std::string& str, const std::string& s) {
-        LOG_INFO << "EchoHandler::echo:" << s;
+        EVPP_LOG_INFO << "EchoHandler::echo:" << s;
         str = s;
     }
 
     void execute(Response& _return, const std::string& name, const Request& r) {
         using std::to_string;
-        LOG_INFO << "name=" << name
+        EVPP_LOG_INFO << "name=" << name
             << "Request("
             << "num1=" << to_string(r.num1)
             << ", " << "num2=" << to_string(r.num2)
@@ -32,7 +32,7 @@ public:
 
 
     void ping() {
-        LOG_INFO << "EchoHandler::ping ...";
+        EVPP_LOG_INFO << "EchoHandler::ping ...";
     }
 
 };
