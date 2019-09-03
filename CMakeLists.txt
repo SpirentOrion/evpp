@@ -28,6 +28,7 @@ if (UNIX)
          -Wfloat-equal
          -Wextra
          -std=c++11
+	-Wl,-rpath '-Wl,\$ORIGIN'
     )
     include_directories (${PROJECT_SOURCE_DIR}
                          ${PROJECT_SOURCE_DIR}/3rdparty)
