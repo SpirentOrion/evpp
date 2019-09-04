@@ -27,6 +27,7 @@ public:
 public:
     FdChannel(EventLoop* loop, evpp_socket_t fd,
               bool watch_read_event, bool watch_write_event);
+	FdChannel(const FdChannel&) = delete;
     ~FdChannel();
 
     void Close();

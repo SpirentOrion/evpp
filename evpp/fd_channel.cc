@@ -5,10 +5,13 @@
 #include "evpp/fd_channel.h"
 #include "evpp/libevent.h"
 #include "evpp/event_loop.h"
+#include <unordered_set>
 
 namespace evpp {
 static_assert(FdChannel::kReadable == EV_READ, "");
 static_assert(FdChannel::kWritable == EV_WRITE, "");
+
+static std::unordered_set<FdChannel*> openFdChannels;
 
 FdChannel::FdChannel(EventLoop* l, evpp_socket_t f, bool r, bool w)
     : loop_(l), attached_(false), event_(nullptr), fd_(f) {
@@ -17,11 +20,13 @@ FdChannel::FdChannel(EventLoop* l, evpp_socket_t f, bool r, bool w)
     events_ = (r ? kReadable : 0) | (w ? kWritable : 0);
     event_ = new event;
     memset(event_, 0, sizeof(struct event));
+    openFdChannels.insert(this);
 }
 
 FdChannel::~FdChannel() {
     EVPP_DLOG_TRACE << "fd=" << fd_;
     assert(event_ == nullptr);
+    openFdChannels.erase(this);
 }
 
 void FdChannel::Close() {
@@ -156,11 +161,11 @@ void FdChannel::HandleEvent(evpp_socket_t sockfd, short which) {
     assert(sockfd == fd_);
     EVPP_DLOG_TRACE << "fd=" << sockfd << " " << EventsToString();
 
-    if ((which & kReadable) && read_fn_) {
+    if ((which & kReadable) && openFdChannels.find(this) != openFdChannels.end() && read_fn_) {
         read_fn_();
     }
 
-    if ((which & kWritable) && write_fn_) {
+    if ((which & kWritable) && openFdChannels.find(this) != openFdChannels.end() && write_fn_) {
         write_fn_();
     }
 }
