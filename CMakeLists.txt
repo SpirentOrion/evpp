@@ -30,8 +30,16 @@ if (UNIX)
          -std=c++11
          -Wl,-rpath '-Wl,\$ORIGIN'
     )
-    include_directories (${PROJECT_SOURCE_DIR}
-                         ${PROJECT_SOURCE_DIR}/3rdparty)
+
+    if(CMAKE_INCLUDE_PATH)
+        set(INCLUDE_DIRS ${CMAKE_INCLUDE_PATH})
+    endif()
+    list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/3rdparty)
+    include_directories(${INCLUDE_DIRS})
+
+    if(CMAKE_LIBRARY_PATH)
+        link_directories(${CMAKE_LIBRARY_PATH})
+    endif()
 
     if (EVPP__BUILD_32_BIT)
         list(APPEND CXX_FLAGS -m32)
@@ -45,16 +53,26 @@ if (UNIX)
 
 else (UNIX)
 set (CXX_FLAGS -DWIN32 -D_WIN32 -EHsc)
-    set(VcpkgRoot ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
-    include_directories(${VcpkgRoot}/include
-                        ${PROJECT_SOURCE_DIR}
-                        ${PROJECT_SOURCE_DIR}/3rdparty/wininclude)
+    if(CMAKE_INCLUDE_PATH)
+        set(INCLUDE_DIRS ${CMAKE_INCLUDE_PATH})
+        list(APPEND INCLUDE_DIRS ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/3rdparty/wininclude)
+        include_directories(${INCLUDE_DIRS})
+    else()
+        set(VcpkgRoot ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
+        include_directories(${VcpkgRoot}/include
+                            ${PROJECT_SOURCE_DIR}
+                            ${PROJECT_SOURCE_DIR}/3rdparty/wininclude)
+    endif()
 
-    # On windows, Debug mode
-    link_directories(${VcpkgRoot}/debug/lib ${VcpkgRoot}/debug/lib/manual-link)
+    if(CMAKE_LIBRARY_PATH)
+        link_directories(${CMAKE_LIBRARY_PATH})
+    else()
+        # On windows, Debug mode
+        link_directories(${VcpkgRoot}/debug/lib ${VcpkgRoot}/debug/lib/manual-link)
 
-    # On Windows, Release mode
-    # link_directories(${VcpkgRoot}/lib ${VcpkgRoot}/lib/manual-link)
+        # On Windows, Release mode
+        # link_directories(${VcpkgRoot}/lib ${VcpkgRoot}/lib/manual-link)
+    endif()
 endif (UNIX)
 
 string (REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
@@ -62,7 +80,11 @@ string (REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 if (UNIX)
     SET(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g -ggdb -D_DEBUG -DGOOGLE_STRIP_LOG=0")
     SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -g -ggdb -DNDEBUG -DGOOGLE_STRIP_LOG=1")
-    SET(DEPENDENT_LIBRARIES event glog pthread)
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        SET(DEPENDENT_LIBRARIES event_core glog pthread)
+    else()
+        SET(DEPENDENT_LIBRARIES event_core glogd pthread)
+    endif()
 else (UNIX)
     SET(DEPENDENT_LIBRARIES event glog)
 endif (UNIX)
@@ -94,6 +116,8 @@ find_library(THRIFT_LIBRARY NAMES thrift)
 message (STATUS "This is BINARY dir " ${PROJECT_BINARY_DIR})
 message (STATUS "This is SOURCE dir " ${PROJECT_SOURCE_DIR})
 message (STATUS "CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS})
+message (STATUS "CMAKE_INCLUDE_PATH " ${CMAKE_INCLUDE_PATH})
+message (STATUS "CMAKE_LIBRARY_PATH " ${CMAKE_LIBRARY_PATH})
 message (STATUS "EXECUTABLE_OUTPUT_PATH " ${EXECUTABLE_OUTPUT_PATH})
 message (STATUS "LIBRARY_OUTPUT_PATH " ${LIBRARY_OUTPUT_PATH})
 message (STATUS "THRIFT_COMPILER " ${THRIFT_COMPILER})
